@@ -20,6 +20,8 @@ futures-lite = "1.12"
 serde = { version = "1.0.55", features = ["derive", "rc"] }
 serde_derive = "1.0.55"
 serde_cbor = "0.11.2"
+chrono = { version = "0.4", features = ["serde"] }
+
 
 # types
 nnrf-discovery-server = {path = "../nnrf-discovery-server"}
@@ -31,3 +33,9 @@ nnrf-zenoh = {path = "../nnrf-zenoh"}
 
 clap = { version = "4.1.8", features = ["derive"] }
 flume = "0.10"
+
+tonic = "0.8"
+prost = "0.11"
+
+nrf-grpc = {path = "../nrf-grpc"}
+sfm-grpc = {path = "../sfm-grpc"}

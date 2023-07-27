@@ -22,6 +22,7 @@ async fn send_policy_notifications(z: Arc<Session>, cb: String) {
 
         let value = tn.ser();
         z.put(&cb, value).res().await.unwrap();
+        async_std::task::sleep(std::time::Duration::from_micros(100)).await;
     }
 }
 

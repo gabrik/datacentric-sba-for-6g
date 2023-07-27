@@ -23,14 +23,28 @@ use log::info;
 struct EstErr(String);
 
 async fn establish_session(
+    nrf_client: &mut NrfDiscoveryClient<Channel>,
     smf_client: &mut SmfClient<Channel>,
     flag: Arc<AtomicBool>,
 ) -> Result<(), EstErr> {
     // Mocking the session establishment.
+    // 0. Us NRF in order to discover SMF
     // 1. Send a create SM context to the SMF
     // 2. Wait for the SM Context create response
     // Done!
 
+    // println!("Calling NRF");
+    // Discover SMF
+    let nrf_req = SearchRequest {
+        requester_nf_type: "AMF".into(),
+        service_names: "nsmf-pdusession".into(),
+        target_nf_type: "SMF".into(),
+        requester_features: "20".into(),
+    };
+
+    let _nrf_reply = nrf_client.search(nrf_req).await.unwrap();
+
+    info!("{:?}", _nrf_reply,);
     // Send create context request
 
     // println!("Calling SMF");
@@ -98,7 +112,7 @@ async fn establish_session(
     info!("{:?}", sm_session_creation_result,);
 
     // waits for the callback from AMF
-    let _ = flag.compare_exchange(true, false, Ordering::Acquire, Ordering::Relaxed);
+    while let Err(_) = flag.compare_exchange(true, false, Ordering::Acquire, Ordering::Relaxed) {}
 
     Ok(())
 }
@@ -151,6 +165,8 @@ async fn spawn_server(flag: Arc<AtomicBool>, listen_url: Url) {
 pub struct Opts {
     #[clap(short = 'l', long, default_value = "http://127.0.0.1:9093")]
     pub listen: String,
+    #[clap(short = 'n', long, default_value = "http://127.0.0.1:9090")]
+    pub nrf: String,
     #[clap(short = 's', long, default_value = "http://127.0.0.1:9092")]
     pub smf: String,
     #[clap(short = 's', long, default_value = "10")]
@@ -165,9 +181,13 @@ async fn main() {
 
     let opts = Opts::parse();
 
+    let nrf_base_url = opts.nrf.clone();
+
     let smf_base_url = opts.smf.clone();
 
     let runs = opts.runs;
+
+    let mut nrf_client = NrfDiscoveryClient::connect(nrf_base_url).await.unwrap();
     let mut smf_client = SmfClient::connect(smf_base_url).await.unwrap();
 
     let flag = Arc::new(AtomicBool::new(false));
@@ -182,7 +202,7 @@ async fn main() {
 
     while i < runs {
         let now = Instant::now();
-        match establish_session(&mut smf_client, flag.clone()).await {
+        match establish_session(&mut nrf_client, &mut smf_client, flag.clone()).await {
             Ok(_) => {
                 let delta = now.elapsed();
                 println!("establishment,grpc,{},ns", delta.as_nanos());

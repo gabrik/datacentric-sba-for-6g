@@ -33,13 +33,161 @@ type ClientContext = swagger::make_context_ty!(
 struct EstErr(String);
 
 async fn establish_session(
+    nrf_client: &Box<dyn NRFApiNoContext<ClientContext>>,
     smf_client: &Box<dyn SMFApiNoContext<ClientContext>>,
     flag: Arc<AtomicBool>,
 ) -> Result<(), EstErr> {
     // Mocking the session establishment.
+    // 0. Us NRF in order to discover SMF
     // 1. Send a create SM context to the SMF
     // 2. Wait for the SM Context create response
     // Done!
+
+    // println!("Calling NRF");
+    // Discover SMF
+    let sfm_search_result = nrf_client
+        .search_nf_instances(
+            NfType::SMF,
+            NfType::AMF,
+            Some("applicaiton/json,application/problem+json".to_string()),
+            None,
+            None,
+            Some(&vec![ServiceName::new("nsmf-pdusession".to_string())]),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            Some("20".to_string()),
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+            None,
+        )
+        .await
+        .map_err(|e| EstErr(format!("NRF {e:?}")))?;
+
+    info!(
+        "{:?} (X-Span-ID: {:?})",
+        sfm_search_result,
+        (nrf_client.context() as &dyn Has<XSpanIdString>)
+            .get()
+            .clone()
+    );
     // Send create context request
 
     // println!("Calling SMF");
@@ -116,7 +264,7 @@ async fn establish_session(
     );
 
     // waits for the callback from AMF
-    let _ = flag.compare_exchange(true, false, Ordering::Acquire, Ordering::Relaxed);
+    while let Err(_) = flag.compare_exchange(true, false, Ordering::Acquire, Ordering::Relaxed) {}
 
     Ok(())
 }
@@ -170,6 +318,8 @@ pub struct Opts {
     // public options
     #[clap(short = 'l', long, default_value = "http://127.0.0.1:8083")]
     pub listen: String,
+    #[clap(short = 'n', long, default_value = "http://127.0.0.1:8080")]
+    pub nrf: String,
     #[clap(short = 's', long, default_value = "http://127.0.0.1:8082")]
     pub smf: String,
     #[clap(short = 's', long, default_value = "10")]
@@ -184,6 +334,8 @@ async fn main() {
 
     let opts = Opts::parse();
 
+    let nrf_base_url = opts.nrf.clone();
+
     let smf_base_url = opts.smf.clone();
 
     let runs = opts.runs;
@@ -194,6 +346,13 @@ async fn main() {
         None as Option<AuthData>,
         XSpanIdString::default()
     );
+
+    // NRF client
+    let mut nrf_client: Box<dyn NRFApiNoContext<ClientContext>> = {
+        let client =
+            Box::new(NRFClient::try_new_http(&nrf_base_url).expect("Failed to create HTTP client"));
+        Box::new(client.with_context(context.clone()))
+    };
 
     // SFM client
 
@@ -216,7 +375,7 @@ async fn main() {
 
     while i < runs {
         let now = Instant::now();
-        match establish_session(&smf_client, flag.clone()).await {
+        match establish_session(&nrf_client, &smf_client, flag.clone()).await {
             Ok(_) => {
                 let delta = now.elapsed();
                 println!("establishment,http,{},ns", delta.as_nanos());

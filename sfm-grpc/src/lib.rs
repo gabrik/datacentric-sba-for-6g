@@ -18,6 +18,7 @@ pub mod nsfm_pdusession {
 
 #[derive(Debug)]
 struct SmfState {
+    nrf_client: NrfDiscoveryClient<Channel>,
     udm_client: UdmClient<Channel>,
 }
 
@@ -28,10 +29,14 @@ pub struct MySmf {
 }
 
 impl MySmf {
-    pub async fn new(udm: String, amf: String) -> Self {
+    pub async fn new(nrf: String, udm: String, amf: String) -> Self {
+        let nrf_client = NrfDiscoveryClient::connect(nrf).await.unwrap();
         let udm_client = UdmClient::connect(udm).await.unwrap();
 
-        let state = SmfState { udm_client };
+        let state = SmfState {
+            nrf_client,
+            udm_client,
+        };
 
         Self {
             state: Some(Arc::new(Mutex::new(state))),
@@ -51,6 +56,16 @@ impl Smf for MySmf {
         match &self.state {
             Some(state) => {
                 let mut guard_state = state.lock().await;
+                // First let's look for UDM
+
+                let nrf_req = SearchRequest {
+                    requester_nf_type: "SMF".into(),
+                    service_names: "nudm-sdm".into(),
+                    target_nf_type: "UDM".into(),
+                    requester_features: "20".into(),
+                };
+
+                let _nrf_reply = guard_state.nrf_client.search(nrf_req).await.unwrap();
 
                 let udm_req = GetSmDataRequest {
                     dnn: "internet".into(),

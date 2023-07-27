@@ -8,6 +8,8 @@ pub struct Opts {
     // public options
     #[clap(short = 'l', long, default_value = "127.0.0.1:9092")]
     pub listen: String,
+    #[clap(short = 'n', long, default_value = "http://127.0.0.1:9090")]
+    pub nrf: String,
     #[clap(short = 'u', long, default_value = "http://127.0.0.1:9091")]
     pub udm: String,
     #[clap(short = 'u', long, default_value = "http://127.0.0.1:9093")]
@@ -19,7 +21,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let opts = Opts::parse();
 
     let addr = opts.listen.parse()?;
-    let smf = MySmf::new(opts.udm.into(), opts.amf).await;
+    let smf = MySmf::new(opts.nrf.into(), opts.udm.into(), opts.amf).await;
 
     Server::builder()
         .add_service(SmfServer::new(smf))

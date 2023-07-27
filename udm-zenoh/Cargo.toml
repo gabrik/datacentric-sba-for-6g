@@ -6,6 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+zrpc-macros = { git = "https://github.com/ZettaScaleLabs/zenoh-rpc", branch = "master"}
+zrpc = { git = "https://github.com/ZettaScaleLabs/zenoh-rpc", branch = "master", default-features = false, features =  ["resp_cbor", "send_cbor", "state_cbor", "router_json", "transport_tcp", "query_payload"]}
 zenoh-sync = { version = "=0.7.0-rc" }
 zenoh-util = { version = "=0.7.0-rc" }
 zenoh = { version = "=0.7.0-rc", features = ["unstable"] }
@@ -21,3 +23,8 @@ futures-lite = "1.12"
 serde = { version = "1.0.55", features = ["derive", "rc"] }
 serde_derive = "1.0.55"
 clap = { version = "4.1.8", features = ["derive"] }
+tonic = "0.8"
+prost = "0.11"
+
+[build-dependencies]
+tonic-build = "0.8"

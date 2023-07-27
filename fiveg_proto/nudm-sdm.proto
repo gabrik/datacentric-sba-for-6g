@@ -1,0 +1,57 @@
+syntax = "proto3";
+
+package fiveg_proto;
+
+service UDM {
+    rpc GetSMData(GetSMDataRequest) returns (GetSMDataResult) {}
+}
+
+message GetSMDataRequest {
+    string dnn = 1;
+    Nssai single_nssai = 2;
+}
+
+message Nssai {
+    int32 sst = 1;
+    string sd = 2;
+}
+
+
+message GetSMDataResult {
+    Nssai single_nssai = 1;
+    map<string,DnnConfiguration> dnn_configurations = 2;
+}
+
+message DnnConfiguration {
+    PduSessionTypes pdu_session_types = 1;
+    SscModes ssc_modes = 2;
+    QosProfile qos_profile = 3;
+    SessionAmbr session_ambr = 4;
+}
+
+message PduSessionTypes {
+    string default_session_type = 1;
+    repeated string allowed_session_types = 2;
+}
+
+message SscModes {
+    string default_ssc_mode = 1;
+    repeated string allowed_ssc_modes = 2;
+}
+
+message QosProfile {
+    int32 qi = 1;
+    Arp arp = 2;
+    int32 priority_level = 3;
+}
+
+message Arp {
+    int32 priority_level = 1;
+    string preempt_cap = 2;
+    string preempt_vuln = 3;
+}
+
+message SessionAmbr {
+    string uplink = 1;
+    string downlink = 2;
+}

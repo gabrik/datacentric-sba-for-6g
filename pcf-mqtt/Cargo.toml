@@ -1,0 +1,15 @@
+[package]
+name = "pcf-mqtt"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+pcf-zenoh = {path = "../pcf-zenoh"}
+tokio = {version = "1", features = ["full"] }
+env_logger = "0.10"
+log = "0.4"
+ntex = { version =  "0.5", features = ["async-std"] }
+mqtt-async-client = "0.3.1"
+clap = { version = "4.1.8", features = ["derive"] }

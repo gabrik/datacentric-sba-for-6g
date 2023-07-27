@@ -1,0 +1,20 @@
+[package]
+name = "grpc-analyze"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+tonic = "0.8"
+prost = "0.11"
+tokio = { version = "1.0", features = ["full"] }
+nrf-grpc = {path = "../nrf-grpc"}
+sfm-grpc = {path = "../sfm-grpc"}
+log = "0.4.0"
+clap = { version = "4.1.8", features = ["derive"] }
+env_logger = "0.7"
+hyper = {version = "0.14", features = ["full"] }
+url = {version = "2.1"}
+[build-dependencies]
+tonic-build = "0.8"

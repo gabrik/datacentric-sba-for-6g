@@ -1,0 +1,33 @@
+[workspace]
+members = [
+  "nnrf-discovery-server",
+  "nsfm-pdusession",
+  "nudm-sdm",
+  "http-analyze",
+  "nnrf-zenoh",
+  "udm-zenoh",
+  "smf-zenoh",
+  "zenoh-analyze",
+  "nrf-grpc",
+  "udm-grpc",
+  "sfm-grpc",
+  "grpc-analyze",
+  "pcf-zenoh",
+  "pcf-mqtt",
+  "mqtt-analyze",
+  "pcf-kafka",
+  "kafka-analyze",
+]
+
+# openapi-generator generate -i TS29510_Nnrf_NFDiscovery.yaml -g rust-server -o ../../code/nnrf-discovery-server
+
+[profile.dev]
+debug=true
+opt-level = 0
+
+
+[profile.release]
+lto="fat"
+codegen-units=1
+opt-level=3
+panic="abort"

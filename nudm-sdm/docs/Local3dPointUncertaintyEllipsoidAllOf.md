@@ -1,0 +1,13 @@
+# Local3dPointUncertaintyEllipsoidAllOf
+
+## Properties
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**local_origin** | [***models::LocalOrigin**](LocalOrigin.md) |  | 
+**point** | [***models::RelativeCartesianLocation**](RelativeCartesianLocation.md) |  | 
+**uncertainty_ellipsoid** | [***models::UncertaintyEllipsoid**](UncertaintyEllipsoid.md) |  | 
+**confidence** | **u8** | Indicates value of confidence. | 
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

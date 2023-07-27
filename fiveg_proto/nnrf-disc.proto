@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package fiveg_proto;
+
+service NRFDiscovery {
+    rpc Search(SearchRequest) returns (SearchResult) {}
+}
+
+
+
+message SearchRequest {
+    string requester_nf_type = 1;
+    string service_names = 2;
+    string target_nf_type = 3;
+    string requester_features = 4;
+}
+
+message SearchResult {
+    int32 validity_period = 1;
+    repeated NfProfile nf_instances= 2;
+}
+
+
+message NfProfile {
+    string nf_instance_id = 1;
+    string nf_type = 2;
+    string nf_status = 3;
+    int32 heartbeat_timer = 4;
+    repeated string ipv4_addresses = 5;
+    repeated string allowed_nf_types = 6;
+    int32 priority = 7;
+    int32 capacity = 8;
+    int32 load = 9;
+    map<string, NfService> nf_service_list = 10;
+    bool nf_profile_changes_support_ind = 11;
+}
+
+
+message NfService {
+    string service_instance_id = 1;
+    string service_name = 2;
+    repeated NfVersion versions = 3;
+    string scheme = 4;
+    string nf_service_status = 5;
+    repeated IpEndpoints ip_endpoints = 6;
+    repeated string allowed_nf_types = 7;
+    int32 priority = 8;
+    int32 capacity = 9;
+    int32 load = 10;
+}
+
+message NfVersion {
+    string api_version_in_url = 1;
+    string api_full_version = 2;
+}
+
+message IpEndpoints {
+    string ipv4_address = 1;
+    int32 port = 2;
+}
+

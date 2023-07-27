@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package fiveg_proto;
+
+
+service SMF {
+    rpc SmContext(CreateSMContextRequest) returns (CreateSMContextResult) {}
+}
+
+
+message CreateSMContextRequest {
+    string supi = 1;
+    string pei = 2;
+    string dnn = 3;
+    int32 pdu_session_id = 4;
+    Nssai s_nnssai = 5;
+    string serving_nf_id = 6;
+    Guami guami = 7;
+    PlmnId serving_network = 8;
+    string an_type = 9;
+    string rat_type = 10;
+    UeLocation ue_location = 11;
+    string ue_timezone = 12;
+    string sm_context_status_uri = 13;
+    string pcf_id = 14;
+    bytes n1_sm_msg = 15;
+}
+
+message Guami {
+    PlmnId plmn_id = 1;
+    string amf_id = 2;
+}
+
+message PlmnId {
+    string mcc = 1;
+    string mnc = 2;
+}
+
+message UeLocation {
+    NrLocation nr_location = 1;
+}
+
+message NrLocation {
+    Tai tai = 1;
+    Ncgi ncgi = 2;
+    string ue_location_timestamp = 3;
+}
+
+message Tai {
+    PlmnId plmn_id = 1;
+    string tac = 2;
+}
+
+
+message Ncgi {
+    PlmnId plmn_id = 1;
+    string nr_cell_id = 2;
+}
+
+message Nssai {
+    int32 sst = 1;
+    string sd = 2;
+}
+
+
+message CreateSMContextResult {
+    string location = 1;
+}

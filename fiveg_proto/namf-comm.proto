@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package fiveg_proto;
+
+
+service AMF {
+    rpc UEContext(UeContextRequest) returns (UeContextResult) {}
+}
+
+message UeContextRequest {
+    string supi = 1;
+    N1MessageContainer n1_message_container = 2;
+    N2InfoContainer n2_info_container = 3;
+    string pdu_session_id = 4;
+}
+
+message N1MessageContainer {
+    string n1_message_class = 1;
+    bytes n1_message_content = 2;
+}
+
+message N2InfoContainer {
+    string n2_information_class = 1;
+    SMInfo sm_info = 3;
+}
+
+message SMInfo {
+    string pdu_session_id = 1;
+    N2InfoContent n2_info_content = 2;
+}
+
+message N2InfoContent {
+    string ngap_ie_type = 1;
+    bytes ngap_data = 2;
+}
+
+
+message UeContextResult {
+    string status = 1;
+}
